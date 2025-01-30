@@ -1,53 +1,21 @@
 // use std::io;
-use board::*;
 mod board;
+mod defs;
 
-fn main() {}
-
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
-pub enum Square {
-    // nothing in it
-    Empty,
-    // a piece is in it defined by type piece
-    Filled(Piece),
-    // it's a boundry square
-    Boundry,
+fn main() {
+    let sixtyfourbitnum =
+        0b01001001_11001101_10010100_10011110_11110011_11000111_01000111_10100110_u64;
+    println!("{:064b}", sixtyfourbitnum);
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
-pub struct Piece {
-    pub color: PieceColor,
-    pub kind: PieceType,
-}
-
-impl Piece {
-    fn new(color: PieceColor, kind: PieceType) -> Self {
-        Piece { color, kind }
-    }
-
-    fn to_character(self) -> &'static str {
-        match (self.color, self.kind) {
-            (PieceColor::White, PieceType::Pawn) => "P",
-            (PieceColor::White, PieceType::Rook) => "R",
-            (PieceColor::White, PieceType::Knight) => "N",
-            (PieceColor::White, PieceType::Bishop) => "B",
-            (PieceColor::White, PieceType::Queen) => "Q",
-            (PieceColor::White, PieceType::King) => "K",
-            (PieceColor::Black, PieceType::Pawn) => "p",
-            (PieceColor::Black, PieceType::Rook) => "r",
-            (PieceColor::Black, PieceType::Knight) => "n",
-            (PieceColor::Black, PieceType::Bishop) => "b",
-            (PieceColor::Black, PieceType::Queen) => "q",
-            (PieceColor::Black, PieceType::King) => "k",
+fn print_bitboard(bitboard: &u64) {
+    const LAST_BIT: u64 = 63;
+    for rank in 0..8 {
+        for file in (0..8).rev() {
+            let mask = 1u64 << (LAST_BIT - (rank * 8) - file);
+            let char = if bitboard & mask != 0 { '1' } else { '*' };
+            print!("{char} ");
         }
+        println!();
     }
-}
-
-pub struct Board {}
-
-// takes in a FEN string and creates a board state to match it
-fn chess_notation_finder(spot: &str) -> (usize, usize) {
-    let file = spot.chars().next().unwrap() as usize - 'a' as usize;
-    let rank = (8 - spot.chars().nth(1).unwrap().to_digit(10).unwrap()) as usize;
-    (rank, file)
 }
