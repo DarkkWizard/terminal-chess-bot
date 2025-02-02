@@ -1,11 +1,15 @@
 // use std::io;
+use crate::board::Borat;
+use crate::defs::{Bitboard, Pieces, Sides};
+//use std::io::Write;
+//use termcolor::{BufferWriter, Color, ColorChoice, ColorSpec, WriteColor};
 mod board;
 mod defs;
 
 fn main() {
-    let sixtyfourbitnum =
-        0b01001001_11001101_10010100_10011110_11110011_11000111_01000111_10100110_u64;
-    println!("{:064b}", sixtyfourbitnum);
+    let board: Borat = Borat::new_empty();
+    let var: Bitboard = board.get_piece(Pieces::PAWN, Sides::WHITE);
+    print_bitboard(&var.mnum);
 }
 
 fn print_bitboard(bitboard: &u64) {

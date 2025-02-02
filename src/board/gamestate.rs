@@ -1,5 +1,3 @@
-use crate::defs::Side;
-
 pub struct Gamestate {
     pub side_to_play: u8,
 }
