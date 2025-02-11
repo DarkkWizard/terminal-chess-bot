@@ -8,6 +8,7 @@ impl Sides {
     pub const BOTH: Side = 2;
 }
 
+// SMALLEST IS THE LEAST SIGNIFICANT
 // Bitboard Square Mapping:
 //
 //   56  57  58  59  60  61  62  63     a8  b8  c8  d8  e8  f8  g8  h8
@@ -20,16 +21,7 @@ impl Sides {
 //    0   1   2   3   4   5   6   7     a1  b1  c1  d1  e1  f1  g1  h1
 //
 
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
-pub struct Bitboard {
-    pub mnum: u64,
-}
-
-impl Bitboard {
-    pub fn new(num: u64) -> Bitboard {
-        Bitboard { mnum: num }
-    }
-}
+pub type Bitboard = u64;
 
 pub struct Pieces;
 impl Pieces {
@@ -40,4 +32,23 @@ impl Pieces {
     pub const KNIGHT: Piece = 4;
     pub const PAWN: Piece = 5;
     pub const EMPTY: Piece = 6;
+}
+
+pub fn print_bitboard(bitboard: &u64) {
+    const LAST_BIT: u64 = 63;
+    for rank in 0..8 {
+        for file in (0..8).rev() {
+            let mask = 1u64 << (LAST_BIT - (rank * 8) - file);
+            let char = if bitboard & mask != 0 { '@' } else { '*' };
+            print!("{char} ");
+        }
+        println!();
+    }
+}
+
+// unsets the bit closest to the right and returns the position of the bit that it unset
+pub fn next(bitboard: &mut Bitboard) -> usize {
+    let square = bitboard.trailing_zeros() as usize;
+    *bitboard ^= 1u64 << square;
+    square
 }

@@ -3,16 +3,17 @@ use rand::random;
 
 pub const EMPTY: u64 = 0;
 
-pub struct Zobrist {
-    zobrist_pieces: [[[u64; 64]; 7]; 2],
-    zobrist_castling: [[u64; 2]; 2],
-    zobrist_is_black_move: u64,
-    zobrist_full_move_number: u64,
-    zobrist_enpassant: [u64; 64],
+pub struct ZobristRandomsHolder {
+    pub zobrist_pieces: [[[u64; 64]; 7]; 2],
+    pub zobrist_castling: [[u64; 2]; 2],
+    pub zobrist_is_black_move: u64,
+    pub zobrist_full_move_number: u64,
+    pub zobrist_enpassant: [u64; 64],
 }
-impl Zobrist {
-    pub fn new() -> Zobrist {
-        let mut new = Zobrist {
+
+impl ZobristRandomsHolder {
+    pub fn new() -> ZobristRandomsHolder {
+        let mut new = ZobristRandomsHolder {
             zobrist_pieces: [[[EMPTY; 64]; 7]; 2],
             zobrist_castling: [[EMPTY; 2]; 2],
             zobrist_is_black_move: EMPTY,
@@ -42,23 +43,23 @@ impl Zobrist {
             *square = random();
         });
 
-        println!(
-            "{:?} {:?} {} {} {:?}",
-            new.zobrist_pieces
-                .iter()
-                .map(|matrix| matrix
-                    .iter()
-                    .map(|row| row
-                        .iter()
-                        .map(|n| format!("{:064b}", n))
-                        .collect::<Vec<_>>())
-                    .collect::<Vec<_>>())
-                .collect::<Vec<_>>(),
-            new.zobrist_castling,
-            new.zobrist_is_black_move,
-            new.zobrist_full_move_number,
-            new.zobrist_enpassant,
-        );
+        //println!(
+        //    "{:?} {:?} {} {} {:?}",
+        //    new.zobrist_pieces
+        //        .iter()
+        //        .map(|matrix| matrix
+        //            .iter()
+        //            .map(|row| row
+        //                .iter()
+        //                .map(|n| format!("{:064b}", n))
+        //                .collect::<Vec<_>>())
+        //            .collect::<Vec<_>>())
+        //        .collect::<Vec<_>>(),
+        //    new.zobrist_castling,
+        //    new.zobrist_is_black_move,
+        //    new.zobrist_full_move_number,
+        //    new.zobrist_enpassant,
+        //);
         new
     }
 
