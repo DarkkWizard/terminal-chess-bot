@@ -1,5 +1,6 @@
 pub type Piece = usize;
 pub type Side = usize;
+pub type Square = usize;
 
 pub struct Sides;
 impl Sides {
@@ -20,7 +21,6 @@ impl Sides {
 //    8   9  10  11  12  13  14  15     a2  b2  c2  d2  e2  f2  g2  h2
 //    0   1   2   3   4   5   6   7     a1  b1  c1  d1  e1  f1  g1  h1
 //
-
 pub type Bitboard = u64;
 
 pub struct Pieces;

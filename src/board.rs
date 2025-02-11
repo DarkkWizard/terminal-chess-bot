@@ -2,7 +2,7 @@ mod gamestate;
 mod zobrist;
 
 use self::{gamestate::Gamestate, zobrist::ZobristRandomsHolder};
-use crate::defs::{next, Bitboard, Piece, Pieces, Side, Sides};
+use crate::defs::{next, Bitboard, Piece, Pieces, Side, Sides, Square};
 
 //edit: BOARD
 pub struct Borat {
@@ -24,7 +24,6 @@ impl Borat {
         };
 
         board.init();
-        board.remove_piece(12, 12, 12);
         board
     }
 
@@ -45,27 +44,59 @@ impl Borat {
 
     //TODO finish printboard function cause this is not what it's supposed to do bro
     pub fn print_board(&self) {
-        let buffer: String = String::new();
+        let mut buffer: String = String::new();
         for item in self.piece_list {
-            println!("{}{}", item.0, item.1);
+            buffer.push_str(&item.0.to_string());
+            buffer.push_str(&item.1.to_string());
         }
     }
 
-    pub fn move_piece(&mut self) {
-        //call remove piece and place piece here eventually
+    pub fn move_piece(
+        &mut self,
+        starting_square: Square,
+        destination_square: Square,
+        side: Side,
+        piece: Piece,
+    ) {
+        self.remove_piece(starting_square, side, piece);
+        self.place_piece(destination_square, side, piece);
+
+        //other things that i need to do here, cleanup and change which side is to move
+        self.game_state.side_to_play ^= 1;
     }
 }
 
 impl Borat {
-    fn remove_piece(&mut self, square: usize, side: usize, piece: usize) {
+    fn remove_piece(&mut self, square: Square, side: Side, piece: Piece) {
         // need to take it out of the pieces bitboard, the sides bitboard, and the zobrist state
+        let pow: u64 = 1;
+        let mask = pow << square;
 
         //pieces bitboard
-        let mask: u64 = 1;
-        println!("{:064b}", mask << square);
-        self.bitboard_pieces[side][piece] ^= mask >> square;
+        self.bitboard_pieces[side][piece] ^= mask;
 
         // sides bitboard
+        self.bitboard_sides[side] ^= mask;
+
+        // zobrist state
+        self.game_state.curr_zobrist_key ^=
+            self.zobrist_randoms_holder.find_piece(piece, side, square);
+    }
+
+    fn place_piece(&mut self, square: Square, side: usize, piece: Piece) {
+        // need to place it on the piece bitboard, the side bitboard, and the zobrist state
+        let pow: u64 = 1;
+        let mask = pow << square;
+
+        // pieces bitboard
+        self.bitboard_pieces[side][piece] |= mask;
+
+        // sides bitboard
+        self.bitboard_sides[side] |= mask;
+
+        // zobrist state
+        self.game_state.curr_zobrist_key ^=
+            self.zobrist_randoms_holder.find_piece(piece, side, square);
     }
 
     fn init_side_bitboards(&self) -> [Bitboard; 2] {
@@ -122,7 +153,6 @@ impl Borat {
                 }
             }
         }
-        println!("{:?}", piece_list);
         for side in 0..2 {
             let mut bitboard = self.bitboard_sides[side];
             while bitboard != 0 {

@@ -4,6 +4,7 @@ pub struct Gamestate {
     pub side_to_play: usize,
     pub curr_zobrist_key: u64,
 }
+
 impl Gamestate {
     pub fn new() -> Gamestate {
         Gamestate {
