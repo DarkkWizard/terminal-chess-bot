@@ -3,6 +3,7 @@ use rand::random;
 
 pub const EMPTY: u64 = 0;
 
+#[derive(Debug)]
 pub struct ZobristRandomsHolder {
     pub zobrist_pieces: [[[u64; 64]; 7]; 2],
     pub zobrist_castling: [[u64; 2]; 2],

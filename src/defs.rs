@@ -1,3 +1,4 @@
+use crate::board::Borat;
 pub type Piece = usize;
 pub type Side = usize;
 pub type Square = usize;
@@ -34,21 +35,99 @@ impl Pieces {
     pub const EMPTY: Piece = 6;
 }
 
+// unsets the bit closest to the right and returns the position of the bit that it unset
+pub fn next(bitboard: &mut Bitboard) -> usize {
+    let square = bitboard.trailing_zeros() as usize;
+    *bitboard ^= 1u64 << square;
+    square
+}
+
 pub fn print_bitboard(bitboard: &u64) {
     const LAST_BIT: u64 = 63;
     for rank in 0..8 {
         for file in (0..8).rev() {
             let mask = 1u64 << (LAST_BIT - (rank * 8) - file);
-            let char = if bitboard & mask != 0 { '@' } else { '*' };
+            let char = if bitboard & mask != 0 { '@' } else { '+' };
             print!("{char} ");
         }
         println!();
     }
 }
 
-// unsets the bit closest to the right and returns the position of the bit that it unset
-pub fn next(bitboard: &mut Bitboard) -> usize {
-    let square = bitboard.trailing_zeros() as usize;
-    *bitboard ^= 1u64 << square;
-    square
+pub fn print_board(board: &Borat) {
+    let mut buffer: String = String::new();
+    // Piece, Side
+    for item in board.piece_list {
+        match item.0 {
+            Pieces::KING => {
+                if item.1 == Sides::WHITE {
+                    buffer.push('K');
+                    buffer.push(' ');
+                } else {
+                    buffer.push('k');
+                    buffer.push(' ');
+                }
+            }
+            Pieces::QUEEN => {
+                if item.1 == Sides::WHITE {
+                    buffer.push('Q');
+                    buffer.push(' ');
+                } else {
+                    buffer.push('q');
+                    buffer.push(' ');
+                }
+            }
+            Pieces::ROOK => {
+                if item.1 == Sides::WHITE {
+                    buffer.push('R');
+                    buffer.push(' ');
+                } else {
+                    buffer.push('r');
+                    buffer.push(' ');
+                }
+            }
+            Pieces::BISHOP => {
+                if item.1 == Sides::WHITE {
+                    buffer.push('B');
+                    buffer.push(' ');
+                } else {
+                    buffer.push('b');
+                    buffer.push(' ');
+                }
+            }
+            Pieces::KNIGHT => {
+                if item.1 == Sides::WHITE {
+                    buffer.push('N');
+                    buffer.push(' ');
+                } else {
+                    buffer.push('n');
+                    buffer.push(' ');
+                }
+            }
+            Pieces::PAWN => {
+                if item.1 == Sides::WHITE {
+                    buffer.push('P');
+                    buffer.push(' ');
+                } else {
+                    buffer.push('p');
+                    buffer.push(' ');
+                }
+            }
+            Pieces::EMPTY => buffer.push_str("+ "),
+            _ => (),
+        }
+    }
+    let newbuff = [
+        &buffer[112..127],
+        &buffer[96..111],
+        &buffer[80..95],
+        &buffer[64..79],
+        &buffer[48..63],
+        &buffer[32..47],
+        &buffer[16..31],
+        &buffer[0..15],
+    ];
+    for line in newbuff {
+        println!("{}", line);
+    }
 }

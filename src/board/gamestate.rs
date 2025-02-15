@@ -1,5 +1,6 @@
 use super::zobrist::ZobristRandomsHolder;
 use crate::Sides;
+#[derive(Debug)]
 pub struct Gamestate {
     pub side_to_play: usize,
     pub curr_zobrist_key: u64,

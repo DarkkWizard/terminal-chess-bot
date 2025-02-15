@@ -5,9 +5,10 @@ use self::{gamestate::Gamestate, zobrist::ZobristRandomsHolder};
 use crate::defs::{next, Bitboard, Piece, Pieces, Side, Sides, Square};
 
 //edit: BOARD
+#[derive(Debug)]
 pub struct Borat {
-    pub bitboard_pieces: [[Bitboard; 6]; 2],
-    pub bitboard_sides: [Bitboard; 2],
+    pub bitboard_pieces: [[Bitboard; 7]; 3],
+    pub bitboard_sides: [Bitboard; 3],
     pub game_state: Gamestate,
     pub piece_list: [(Piece, Side); 64],
     pub zobrist_randoms_holder: ZobristRandomsHolder,
@@ -16,8 +17,8 @@ pub struct Borat {
 impl Borat {
     pub fn new_empty() -> Borat {
         let mut board = Borat {
-            bitboard_pieces: [[0; 6]; 2],
-            bitboard_sides: [0; 2],
+            bitboard_pieces: [[0; 7]; 3],
+            bitboard_sides: [0; 3],
             game_state: Gamestate::new(),
             piece_list: [(Pieces::EMPTY, Sides::BOTH); 64],
             zobrist_randoms_holder: ZobristRandomsHolder::new(),
@@ -27,11 +28,11 @@ impl Borat {
         board
     }
 
-    pub fn get_piece(&self, piece: Piece, side: Side) -> Bitboard {
+    pub fn get_piece_board(&self, piece: Piece, side: Side) -> Bitboard {
         self.bitboard_pieces[side][piece]
     }
 
-    pub fn get_side(&self, side: Side) -> Bitboard {
+    pub fn get_side_board(&self, side: Side) -> Bitboard {
         self.bitboard_sides[side]
     }
 
@@ -40,15 +41,6 @@ impl Borat {
         self.bitboard_sides = self.init_side_bitboards();
         self.game_state.curr_zobrist_key = self.init_zobrist_hash();
         self.piece_list = self.init_piece_list();
-    }
-
-    //TODO finish printboard function cause this is not what it's supposed to do bro
-    pub fn print_board(&self) {
-        let mut buffer: String = String::new();
-        for item in self.piece_list {
-            buffer.push_str(&item.0.to_string());
-            buffer.push_str(&item.1.to_string());
-        }
     }
 
     pub fn move_piece(
@@ -60,6 +52,9 @@ impl Borat {
     ) {
         self.remove_piece(starting_square, side, piece);
         self.place_piece(destination_square, side, piece);
+
+        //change the piece list too
+        self.update_piece_list(starting_square, destination_square, side, piece);
 
         //other things that i need to do here, cleanup and change which side is to move
         self.game_state.side_to_play ^= 1;
@@ -99,9 +94,15 @@ impl Borat {
             self.zobrist_randoms_holder.find_piece(piece, side, square);
     }
 
-    fn init_side_bitboards(&self) -> [Bitboard; 2] {
+    fn update_piece_list(&mut self, start: Square, end: Square, piece: Piece, side: Square) {
+        self.piece_list[end] = (piece, side);
+        self.piece_list[start] = (Pieces::EMPTY, Sides::BOTH);
+    }
+
+    fn init_side_bitboards(&self) -> [Bitboard; 3] {
         let mut white_bb: Bitboard = 0;
         let mut black_bb: Bitboard = 0;
+        let both_bb: Bitboard = self.bitboard_pieces[Sides::BOTH][Pieces::EMPTY];
 
         for (bb_white, bb_black) in self.bitboard_pieces[Sides::WHITE]
             .iter()
@@ -111,7 +112,7 @@ impl Borat {
             black_bb |= *bb_black;
         }
 
-        [white_bb, black_bb]
+        [white_bb, black_bb, both_bb]
     }
 
     fn init_zobrist_hash(&mut self) -> u64 {
@@ -140,12 +141,12 @@ impl Borat {
         key
     }
 
-    fn init_piece_list(&self) -> [(Piece, usize); 64] {
-        let mut piece_list = [Pieces::EMPTY; 64];
-        let mut side_list: [usize; 64] = [0; 64];
+    fn init_piece_list(&self) -> [(Piece, Side); 64] {
+        let mut piece_list: [Piece; 64] = [Pieces::EMPTY; 64];
+        let mut side_list: [Side; 64] = [0; 64];
 
-        for side in 0..2 {
-            for piece in 0..6 {
+        for side in 0..3 {
+            for piece in 0..7 {
                 let mut bitboard = self.bitboard_pieces[side][piece];
                 while bitboard != 0 {
                     let square = next(&mut bitboard);
@@ -153,7 +154,7 @@ impl Borat {
                 }
             }
         }
-        for side in 0..2 {
+        for side in 0..3 {
             let mut bitboard = self.bitboard_sides[side];
             while bitboard != 0 {
                 let square = next(&mut bitboard);
@@ -191,5 +192,9 @@ impl Borat {
             0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00001000;
         self.bitboard_pieces[Sides::WHITE][Pieces::PAWN] |=
             0b00000000_00000000_00000000_00000000_00000000_00000000_11111111_00000000;
+
+        // both
+        self.bitboard_pieces[Sides::BOTH][Pieces::EMPTY] |=
+            0b00000000_00000000_11111111_11111111_11111111_11111111_00000000_00000000;
     }
 }
