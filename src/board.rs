@@ -54,7 +54,7 @@ impl Borat {
         self.place_piece(destination_square, side, piece);
 
         //change the piece list too
-        self.update_piece_list(starting_square, destination_square, side, piece);
+        self.update_piece_list(starting_square, destination_square, piece, side);
 
         //other things that i need to do here, cleanup and change which side is to move
         self.game_state.side_to_play ^= 1;
@@ -78,7 +78,7 @@ impl Borat {
             self.zobrist_randoms_holder.find_piece(piece, side, square);
     }
 
-    fn place_piece(&mut self, square: Square, side: usize, piece: Piece) {
+    fn place_piece(&mut self, square: Square, side: Side, piece: Piece) {
         // need to place it on the piece bitboard, the side bitboard, and the zobrist state
         let pow: u64 = 1;
         let mask = pow << square;
